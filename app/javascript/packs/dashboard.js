@@ -24,7 +24,10 @@ $('select#expense_user_ids').change(function(e){
   var element = addSplitUserElement('split_user_' + value, 'split_user', name, value, true);
   $('table.split_users').append(element);
   selectedSplitUser += 1;
-  $('a.split_user_' + value).click(function(e) { removeSplitUserElement('split_user_' + value, value); });
+  $('a.split_user_' + value).click(function(e) {
+    removeSplitUserElement('split_user_' + value, value);
+    assignSplitAmount();
+  });
   assignSplitAmount();
 });
 
