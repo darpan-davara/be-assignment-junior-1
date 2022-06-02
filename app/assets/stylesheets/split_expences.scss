@@ -1,0 +1,22 @@
+// Place all the styles related to the split_expences controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: https://sass-lang.com/
+
+a.active {
+  background-color: rgb(174, 174, 242);
+}
+div.expense_list{
+  margin: 10px;
+  width: fit-content;
+  border: 1px solid grey;
+  border-radius: 5px;
+  background-color: #f5f0e4;
+}
+table.expense_list_node{
+  margin: 10px;
+}
+td.amount_list{
+  vertical-align: middle;
+  padding-left: 10px;
+  font-size: 20px;
+}

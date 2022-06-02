@@ -2,50 +2,32 @@
   aside.side-bar-area
     .friends-list
       p.friends-list-header FRIENDS
-      a.friend-name href="#{users_expenses_path(current_user)}" me
+      a class="friend-name #{@user.id == current_user.id ? 'active' : ''}" href="#{users_expenses_path(current_user)}" me
       - @users.where.not(id: current_user.id).each do |user|
-        a.friend-name href="#{users_expenses_path(user)}" = user.name
+        a class="friend-name #{@user.id == user.id ? 'active' : ''}" href="#{users_expenses_path(user)}" = user.name
   .main-area
     .top-bar
-      h1.top-bar-title Dashboard
+      h1.top-bar-title Expenses of #{@user.name}
       .top-bar-actions
         button.btn.btn-primary type="button" data-bs-toggle="modal" data-bs-target="#expenseModal"  Add an expense
         button.btn.btn-secondary type="button"  Settle up
 
-    .dashboard-balances
-      .balances-bar
-        .balance-block
-          p total balance
-          p
+    - if @user.id != current_user.id
+      .dashboard-balances
+        .balances-bar
+          .balance-block
             - if (@you_owed - @you_owe).positive?
-                = "+ $#{@you_owed - @you_owe}"
+              p #{@user.name} owed you $#{@you_owed - @you_owe}.
             - else
-                = "- $#{@you_owe - @you_owed}"
-        .balance-block
-          p you owe
-          p = "$#{@you_owe}"
-        .balance-block
-          p you are owed
-          p = "$#{@you_owed}"
-      .dashboard-detail
-        .detail-block
-          h2.detail-title you owe
-          - @you_owe_users.each do |user|
-            .user-detail
-              img.user-img alt="profile" src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" /
-              .user-info
-                p
-                  = user.first.name
-                p you owe $#{user.second.pluck(:remaining_amount).sum}
-        .detail-block
-          h2.detail-title you are owed
-          - @you_owed_users.each do |user|
-            .user-detail
-              img.user-img alt="profile" src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" /
-              .user-info
-                p
-                  = user.first.name
-                p owes you $#{user.second.pluck(:remaining_amount).sum}
+              p You owes #{@user.name} $#{@you_owed - @you_owe}.
+          
+    .dashboard-detail
+      - @split_expenses.each do |split_expense|
+        .expense_list
+          table.expense_list_node
+            tr 
+              td #{split_expense.expense.description.empty? ? '-' : split_expense.expense.description}<br><small>paid by #{split_expense.paid_by.name}</small>
+              td.amount_list $#{split_expense.remaining_amount}
 
 #expenseModal.modal.fade aria-hidden="true" aria-labelledby="expenseModalLabel" tabindex="-1" 
   .modal-dialog style="max-width: 600px;"

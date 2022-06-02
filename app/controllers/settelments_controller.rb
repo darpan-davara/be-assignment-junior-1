@@ -1,0 +1,2 @@
+class SettelmentsController < ApplicationController
+end

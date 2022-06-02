@@ -1,0 +1,2 @@
+class Settelment < ApplicationRecord
+end
