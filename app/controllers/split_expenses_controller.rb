@@ -4,6 +4,7 @@ class SplitExpensesController < ApplicationController
     @users = User.all
     @user = @users.find_by(id: params[:user_id])
     @expense = Expense.new
+    @settelment = Settelment.new
     @split_expenses = SplitExpense.where(user_id: @user.id, full_paid: false).includes(:expense, :paid_by)
     if current_user.id != @user.id
       @you_owe = SplitExpense.joins(:expense).where(expenses: { paid_by_id: @user.id, paid: false },

@@ -2,7 +2,7 @@ var selectedAuthor = 0;
 var selectedSplitUser = 0;
 
 $('select#expense_paid_by_id').change(function(e){
-  var value = $(this)[0].value;
+  var value = $(this).val();
   var optionCond = optionCondition(value);
   var name = $(this).children(optionCond).html();
   $('select#expense_user_ids').children(optionCond).prop('disabled', true);
@@ -16,7 +16,7 @@ $('select#expense_paid_by_id').change(function(e){
 }); 
 
 $('select#expense_user_ids').change(function(e){
-  var value = $(this)[0].value;
+  var value = $(this).val();
   var optionCond = optionCondition(value);
   var name = $(this).children(optionCond).html();
   $('select#expense_paid_by_id').children(optionCond).prop('disabled', true);
@@ -34,17 +34,17 @@ $('select#expense_user_ids').change(function(e){
 $('input#expense_amount').change(function(e) { assignSplitAmount(); });
 
 function assignSplitAmount(){
-  var amount = parseFloat($('input#expense_amount')[0].value);
+  var amount = parseFloat($('input#expense_amount').val());
   var split_amount = parseFloat((amount/selectedSplitUser).toFixed(2));
   $('table.split_users').find('input[type="number"]').each(function(index){
     $(this).off('change');
-    this.value = split_amount;
+    $(this).val(split_amount);
     $(this).change(function(e){ changeOfSplitAmount(); });
   });
   var first_input = $('table.split_users').find('input[type="number"]');
   if (split_amount*selectedSplitUser != amount){
     first_input.off('change');
-    first_input[0].value = (split_amount+amount-split_amount*selectedSplitUser).toFixed(2);
+    first_input.val((split_amount+amount-split_amount*selectedSplitUser).toFixed(2));
     first_input.change(function(e){ changeOfSplitAmount(); });
   }
 }
@@ -56,7 +56,7 @@ function changeOfSplitAmount(){
   });
   var amount_element = $('input#expense_amount');
   amount_element.off('change');
-  amount_element[0].value = total;
+  amount_element.val(total);
   amount_element.change(function(e) { assignSplitAmount(); });
 }
 
@@ -91,3 +91,30 @@ function addSplitUserElement(className, idName, name, value, removeCheck){
   }
   return element;
 }
+
+$("select#settelment_paid_to_id").change(function(e){
+  var user_id = $(this).val();
+  var url = '/owed_amount/' + user_id
+  if (user_id == ''){
+    $("div.owe_amount_wrap").html('');
+  } else {
+    $.ajax({
+      type: "GET",
+      url: url,
+      dataType: "json",
+      success: function(data){
+        var element = "";
+        if(data.owe_amount > 0){
+          element = `<label class="form-label" for="settelment_description">Description</label>\
+                     <input type="text" class="form-control" id="settelmet_description" name="settelment[description]">\
+                     <label class="form-label" for="settelment_amount">Amount</label>\
+                     <input type="number" class="form-control" min="1" max="${data.owe_amount}" id="settelmet_amount" name="settelment[amount]" value="${data.owe_amount}"><br>\
+                     <input type="submit" name="commit" value="Pay" class="btn btn-primary" data-disable-with="Save changes">`
+        } else {
+          element = 'You do not owe any amount to ' + $("select#settelment_paid_to_id").children(optionCondition(user_id)).html();
+        }
+        $("div.owe_amount_wrap").html(element);
+      }
+    });
+  }
+});

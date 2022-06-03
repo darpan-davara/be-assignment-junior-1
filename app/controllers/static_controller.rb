@@ -2,6 +2,8 @@ class StaticController < ApplicationController
   def dashboard
     @users = User.all
     @expense = Expense.new
+    @settelment = Settelment.new
+    @settelments = Settelment.where('paid_by_id = ? or paid_to_id = ?', current_user.id, current_user.id).order(created_at: :desc)
     you_owe_split_expenses = SplitExpense.where(full_paid: false, user_id: current_user.id).includes(:expense, :paid_by)
     @you_owe_users = you_owe_split_expenses.group_by { |split_expense| split_expense.expense.paid_by }
     @you_owe = you_owe_split_expenses.sum(:remaining_amount)

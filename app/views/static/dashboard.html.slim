@@ -10,14 +10,14 @@
       h1.top-bar-title Dashboard
       .top-bar-actions
         button.btn.btn-primary type="button" data-bs-toggle="modal" data-bs-target="#expenseModal"  Add an expense
-        button.btn.btn-secondary type="button"  Settle up
+        button.btn.btn-secondary type="button" data-bs-toggle="modal" data-bs-target="#settleUpModal" Settle up
 
     .dashboard-balances
       .balances-bar
         .balance-block
           p total balance
           p
-            - if (@you_owed - @you_owe).positive?
+            - if (@you_owed - @you_owe) >= 0
                 = "+ $#{@you_owed - @you_owe}"
             - else
                 = "- $#{@you_owe - @you_owed}"
@@ -46,23 +46,26 @@
                 p
                   = user.first.name
                 p owes you $#{user.second.pluck(:remaining_amount).sum}
-
-#expenseModal.modal.fade aria-hidden="true" aria-labelledby="expenseModalLabel" tabindex="-1" 
-  .modal-dialog style="max-width: 600px;"
-    .modal-content style="width: 600px;"
-      .modal-header 
-        h5#expenseModalLabel.modal-title Add an expense
-        button.btn-close aria-label="Close" data-bs-dismiss="modal" type="button" 
-      .modal-body
-        = bootstrap_form_for(@expense) do |f|
-          = f.select :paid_by_id, options_from_collection_for_select(@users, 'id', 'name'), label: 'Paid By', include_blank: 'Select User'
-          = f.number_field :amount, value: 0, step: 0.01
-          = f.text_field :description
-          = f.select :user_ids, options_from_collection_for_select(@users, 'id', 'name'), include_blank: 'Select User', label: 'Add User'
-          table class = "split_users"
-          = f.date_field :date, value: Date.today
-          .modal-footer
-            button.btn.btn-secondary data-bs-dismiss="modal" type="button"  Close
-            = f.primary 'Save changes'
+      - if @settelments.size > 0
+        hr
+        .row style="margin: 10px;"
+          .col-md-12
+            h3 Settelments
+            hr
+            table.table.table-hover
+              tr
+                th Date
+                th Settelment
+                th Description
+              - @settelments.each do |settelment|
+                tr
+                  td style="padding: 5px;" #{settelment.paid_date.strftime('%d %B %Y')}
+                  - if settelment.paid_by_id == current_user.id
+                    td style="padding: 5px;" You paid <b>$#{settelment.amount}</b> to <b>#{settelment.paid_to.name}</b>.
+                  - else
+                    td style="padding: 5px;" <b>#{settelment.paid_by.name}</b> paid <b>$#{settelment.amount}</b> to you.
+                  td #{settelment.description.blank? ? '-' : settelment.description}
+          
+= render 'shared/dashboard_modals'
 
 = javascript_pack_tag 'dashboard'
